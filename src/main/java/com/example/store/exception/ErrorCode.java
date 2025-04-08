@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatusCode;
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public enum ErrorCode {
-    INVALID_KEY(1001, "Invalid message key", HttpStatus.INTERNAL_SERVER_ERROR),
+    INVALID_QUANTITY(1001, "Invalid quantity", HttpStatus.INTERNAL_SERVER_ERROR),
     ACCESS_DENIED(403, "Access denied", HttpStatus.FORBIDDEN),
     UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error.", HttpStatus.BAD_REQUEST),
     PRODUCT_EXISTED(0001,"Product has been existed", HttpStatus.BAD_REQUEST),
@@ -19,7 +19,8 @@ public enum ErrorCode {
     USER_NOT_EXISTED(1005, "User not existed", HttpStatus.NOT_FOUND),
     PRODUCT_NOT_IN_CART(1006, "Product not it cart", HttpStatus.NOT_FOUND),
     CART_NOT_FOUND(1007, "Cart not found", HttpStatus.NOT_FOUND),
-
+    CATEGORY_EXISTED(1008, "Category not found", HttpStatus.BAD_REQUEST),
+    CART_ITEM_NOT_FOUND(1009, "Cart item not found", HttpStatus.BAD_REQUEST),
     ;
 
     int code;

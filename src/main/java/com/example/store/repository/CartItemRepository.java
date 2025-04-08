@@ -3,6 +3,8 @@ package com.example.store.repository;
 import com.example.store.entity.Cart;
 import com.example.store.entity.CartItem;
 import com.example.store.entity.Product;
+import com.example.store.entity.User;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

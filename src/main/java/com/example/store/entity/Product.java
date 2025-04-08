@@ -18,4 +18,8 @@ public class Product {
     String name;
     String description;
     Double price;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    Category category;
 }

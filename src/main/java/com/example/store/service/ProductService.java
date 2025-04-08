@@ -12,6 +12,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -29,9 +31,12 @@ public class ProductService {
                 .orElseThrow(()-> new AppException(ErrorCode.PRODUCT_NOTFOUND)));
     }
 
-    public List<ProductResponse> getAllProducts(){
-        return productRepository.findAll().stream()
-                .map(productMapper::toProductResponse).toList();//product -> productMapper.toProductResponse(product)
+    //Dùng Page<ProductResponse> thay vì List<...> sẽ giúp client biết tổng số trang và phần tử
+    public Page<ProductResponse> getAllProducts(Pageable pageable){
+        return productRepository.findAll(pageable)
+                .map(productMapper::toProductResponse);
+//                .stream()
+//                .toList();//product -> productMapper.toProductResponse(product)
     }
 
     public ProductResponse getProductById(Long id){

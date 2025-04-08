@@ -9,6 +9,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,9 +47,10 @@ public class ProductController {
     }
 
     @GetMapping
-    ApiResponse<List<ProductResponse>> getAllProduct(){
-        return ApiResponse.<List<ProductResponse>>builder()
-                .result(productService.getAllProducts())
+    ApiResponse<Page<ProductResponse>> getAllProduct(
+            @PageableDefault(page = 0, size = 2, sort = "id", direction = Sort.Direction.ASC) Pageable pageable){//mặc định nếu không truyền tham số pathvariable
+        return ApiResponse.<Page<ProductResponse>>builder()
+                .result(productService.getAllProducts(pageable))
                 .build();
     }
 

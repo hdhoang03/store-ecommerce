@@ -1,5 +1,6 @@
 package com.example.store.service;
 import com.example.store.dto.request.AddToCartRequest;
+import com.example.store.dto.response.CartItemResponse;
 import com.example.store.dto.response.CartResponse;
 import com.example.store.entity.Cart;
 import com.example.store.entity.CartItem;
@@ -34,7 +35,7 @@ public class CartService {
     * Một số thao tác như addToCart hoặc deleteFromCart có thay đổi nhiều bảng (cart, cartItem)
     * nên được đặt trong transaction để tránh lỗi khi một phần lưu, một phần không.
     * */
-    public CartResponse addToCart(AddToCartRequest request){
+    public CartItemResponse addToCart(AddToCartRequest request){
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
         User user = userRepository.findByUsername(username)
@@ -66,17 +67,17 @@ public class CartService {
         }
         cartItemRepository.save(item);
 
-        //Làm mới cart từ database
-        Cart updateCart = cartRepository.findByUser(user)
-                .orElseThrow(()-> new AppException(ErrorCode.CART_NOT_FOUND));
+//        //Làm mới cart từ database (chỉ dùng khi trả về toàn bộ giỏ hàng)
+//        Cart updateCart = cartRepository.findByUser(user)
+//                .orElseThrow(()-> new AppException(ErrorCode.CART_NOT_FOUND));
 
         //Tính tổng tiền sản phẩm với số lượng vừa thêm
 //        updateCart.setItems(cartItemRepository.findByCart(updateCart));
 //        return buildCartResponseWithTotal(updateCart);
-        return cartMapper.toCartResponse(updateCart);
+        return cartMapper.toCartItemResponse(item);
     }
 
-    public CartResponse deleteFromCart(Long productId){
+    public void deleteFromCart(Long productId){
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
         //Tìm người dùng
@@ -107,7 +108,7 @@ public class CartService {
 //        updateCart.setItems(cartItemRepository.findByCart(updateCart));
 //        return buildCartResponseWithTotal(updateCart);
 
-        return cartMapper.toCartResponse(updateCart);
+        buildCartResponseWithTotal(updateCart);
     }
 
     public CartResponse getCartByUsername(){
@@ -123,6 +124,36 @@ public class CartService {
         System.out.println("CartResponse totalPrice: " + response.getTotalPrice()); // Log để debug
 
         return response;
+    }
+
+    @Transactional
+    public CartResponse removeFromCart(Long productId, int quantityToRemove){
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        Cart cart = cartRepository.findByUser(user)
+                .orElseThrow(()-> new AppException(ErrorCode.CART_NOT_FOUND));
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(()-> new AppException(ErrorCode.PRODUCT_NOTFOUND));
+
+        CartItem item = cartItemRepository.findByCartAndProduct(cart, product)
+                .orElseThrow(()-> new AppException(ErrorCode.CART_ITEM_NOT_FOUND));
+
+        if(item.getQuantity() < quantityToRemove){
+            throw new AppException(ErrorCode.INVALID_QUANTITY);
+        } else if (item.getQuantity() == quantityToRemove){
+            cartItemRepository.delete(item);
+        } else {
+            item.setQuantity(item.getQuantity() - quantityToRemove);
+            cartItemRepository.save(item);
+        }
+        Cart updateCart = cartRepository.findByUser(user)
+                .orElseThrow(() -> new AppException(ErrorCode.CART_NOT_FOUND));
+        //return cartMapper.toCartResponse(updateCart);
+        return buildCartResponseWithTotal(updateCart);
     }
 
     //Tính tổng tiền

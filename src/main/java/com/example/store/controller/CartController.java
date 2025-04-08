@@ -2,6 +2,7 @@ package com.example.store.controller;
 
 import com.example.store.dto.ApiResponse;
 import com.example.store.dto.request.AddToCartRequest;
+import com.example.store.dto.response.CartItemResponse;
 import com.example.store.dto.response.CartResponse;
 import com.example.store.service.CartService;
 import lombok.AccessLevel;
@@ -25,8 +26,8 @@ public class CartController {
     }
 
     @PostMapping("/add")
-    ApiResponse<CartResponse> addToCart(@RequestBody AddToCartRequest request){
-        return ApiResponse.<CartResponse>builder()
+    ApiResponse<CartItemResponse> addToCart(@RequestBody AddToCartRequest request){
+        return ApiResponse.<CartItemResponse>builder()
                 .result(cartService.addToCart(request))
                 .message("Product added to cart successfully.")
                 .build();
@@ -38,6 +39,15 @@ public class CartController {
         return ApiResponse.<CartResponse>builder()
                 .code(1000)
                 .message("Product has been removed from cart successfully.")
+                .build();
+    }
+
+    @DeleteMapping("/remove")
+    ApiResponse<CartResponse> removeFromCart(@RequestParam("productId") Long productId,
+                                             @RequestParam("quantity") int quantity){
+        return ApiResponse.<CartResponse>builder()
+                .message("Quantity of product has been removed")
+                .result(cartService.removeFromCart(productId, quantity))
                 .build();
     }
 }

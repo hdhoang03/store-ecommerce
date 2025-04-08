@@ -23,7 +23,9 @@ public class SecurityConfig {
     private CustomJwtDecoder customJwtDecoder;
 
     private final String[] PUBLIC_ENDPOINTS = {"/product", "/product/by-id/**", "/product/by-name/**",
-            "/users", "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh"};
+            "/users", "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh",
+            "/category", "/category/**"
+    };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
