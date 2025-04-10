@@ -39,6 +39,7 @@ public class CartController {
         return ApiResponse.<CartResponse>builder()
                 .code(1000)
                 .message("Product has been removed from cart successfully.")
+                .result(cartService.getCartByUsername())
                 .build();
     }
 
