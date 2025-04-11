@@ -27,6 +27,11 @@ public class Order {
     @ManyToOne
     User user;
     Double totalPrice;
+
+    @Builder.Default
+    @Column(nullable = false)
+    Boolean deleted = false;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     List<OrderItem> items = new ArrayList<>();
 }

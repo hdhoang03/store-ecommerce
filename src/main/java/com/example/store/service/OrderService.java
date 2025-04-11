@@ -1,5 +1,6 @@
 package com.example.store.service;
 
+import com.example.store.constaint.OrderStatus;
 import com.example.store.dto.request.OrderItemRequest;
 import com.example.store.dto.request.OrderRequest;
 import com.example.store.dto.response.OrderResponse;
@@ -12,6 +13,9 @@ import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +50,7 @@ public class OrderService {
 
         Order order = orderMapper.toOrder(orderRequest);
         order.setUser(user);
+        order.setDeleted(false);
 
         List<OrderItem> orderItems = orderItemRequests.stream().map(req -> {
             Product product = productRepository.findById(req.getProductId())
@@ -65,6 +70,44 @@ public class OrderService {
 
         cartRepository.delete(cart);
         return orderMapper.toOrderResponse(savedOrder);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public Page<OrderResponse> getAllOrders(Pageable pageable){
+        return orderRepository.findAll(pageable)
+                .map(orderMapper::toOrderResponse);
+    }
+
+    public Page<OrderResponse> getUserOrders(Pageable pageable){
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        return orderRepository.findByUser(user, pageable)
+                .map(orderMapper::toOrderResponse);
+    }
+
+    @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
+    public void softDeleteOrder(Long id){
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_EXISTED));
+        order.setDeleted(true);
+        orderRepository.save(order);
+    }
+
+    @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
+    public OrderResponse updateOrderStatus(Long id, OrderStatus newStatus){
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_EXISTED));
+
+        if(Boolean.TRUE.equals(order.getDeleted())){
+            throw new AppException(ErrorCode.ORDER_ALREADY_DELETED);
+        }
+        order.setStatus(newStatus);
+        Order updatedOrder = orderRepository.save(order);
+        return orderMapper.toOrderResponse(updatedOrder);
     }
 
     private double calculateTotalPrice(List<OrderItem> orderItems) {
