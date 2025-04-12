@@ -19,7 +19,12 @@ public class Product {
     String description;
     Double price;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "category_id")
     Category category;
+
+    Integer quantity;
+
+    @Column(nullable = false)
+    Integer sold = 0;
 }

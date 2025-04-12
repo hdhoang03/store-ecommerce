@@ -25,7 +25,7 @@ import java.util.List;
 public class ProductController {
     ProductService productService;
 
-    @PostMapping
+    @PostMapping("/admin/add")
     ApiResponse<ProductResponse> createProduct(@RequestBody ProductCreationRequest request){//thêm validate sau
         return ApiResponse.<ProductResponse>builder()
                 .result(productService.createProduct(request))
@@ -47,14 +47,21 @@ public class ProductController {
     }
 
     @GetMapping
-    ApiResponse<Page<ProductResponse>> getAllProduct(
-            @PageableDefault(page = 0, size = 2, sort = "id", direction = Sort.Direction.ASC) Pageable pageable){//mặc định nếu không truyền tham số pathvariable
-        return ApiResponse.<Page<ProductResponse>>builder()
-                .result(productService.getAllProducts(pageable))
+    ApiResponse<List<ProductResponse>> getAllProduct(){//mặc định nếu không truyền tham số pathvariable
+        return ApiResponse.<List<ProductResponse>>builder()
+                .result(productService.getAllProducts())
                 .build();
     }
 
-    @DeleteMapping("/{id}")
+//    @GetMapping
+//    ApiResponse<Page<ProductResponse>> getAllProduct(
+//            @PageableDefault(page = 0, size = 2, sort = "id", direction = Sort.Direction.ASC) Pageable pageable){//mặc định nếu không truyền tham số pathvariable
+//        return ApiResponse.<Page<ProductResponse>>builder()
+//                .result(productService.getAllProducts(pageable))
+//                .build();
+//    }
+
+    @DeleteMapping("/admin/delete/{id}")
     ApiResponse<String> deleteProductById(@PathVariable Long id){
         productService.deleteProduct(id);
         return ApiResponse.<String>builder()
@@ -62,7 +69,7 @@ public class ProductController {
                 .build();
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/admin/edit/{id}")
     ApiResponse<ProductResponse> updateProduct(@PathVariable Long id, @RequestBody ProductUpdateRequest request){
         return ApiResponse.<ProductResponse>builder()
                 .result(productService.updateProduct(id, request))

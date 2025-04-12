@@ -27,6 +27,7 @@ public class CategoryService {
     CategoryRepository categoryRepository;
 
     public List<CategoryResponse> getAllCategories(){
+        log.info("In method get users");//ghi log
         return categoryRepository.findAll()
                 .stream()
                 .map(categoryMapper::toCategoryResponse)
@@ -49,13 +50,21 @@ public class CategoryService {
 
     @PreAuthorize("hasRole('ADMIN')")
     public CategoryResponse createCategory(CategoryCreationRequest request){
-        Category category = categoryMapper.toCategory(request);
-
-        try {
-            category = categoryRepository.save(category);
-        } catch (DataIntegrityViolationException e){
+//        Category category = categoryMapper.toCategory(request);
+//        try {
+//            category = categoryRepository.save(category);
+//        } catch (DataIntegrityViolationException e){
+//            if (categoryRepository.existsByName(request.getName())) {
+//                throw new AppException(ErrorCode.CATEGORY_EXISTED);
+//            }
+//            throw e;
+//        }
+//        return categoryMapper.toCategoryResponse(category);
+        if (categoryRepository.existsByName(request.getName())) {
             throw new AppException(ErrorCode.CATEGORY_EXISTED);
         }
+        Category category = categoryMapper.toCategory(request);
+        category = categoryRepository.save(category);
         return categoryMapper.toCategoryResponse(category);
     }
 }

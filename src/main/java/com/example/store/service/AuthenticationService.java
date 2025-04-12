@@ -10,7 +10,7 @@ import com.example.store.entity.InvalidatedToken;
 import com.example.store.entity.User;
 import com.example.store.exception.AppException;
 import com.example.store.exception.ErrorCode;
-import com.example.store.repository.InvalidTokenRepository;
+import com.example.store.repository.InvalidedTokenRepository;
 import com.example.store.repository.UserRepository;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -41,7 +41,7 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationService {
     UserRepository userRepository;
-    InvalidTokenRepository invalidTokenRepository;
+    InvalidedTokenRepository invalidTokenRepository;
 
     @NonFinal
     @Value("${jwt.signerKey}")

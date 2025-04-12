@@ -19,10 +19,12 @@ public enum ErrorCode {
     USER_NOT_EXISTED(1005, "User not existed", HttpStatus.NOT_FOUND),
     PRODUCT_NOT_IN_CART(1006, "Product not it cart", HttpStatus.NOT_FOUND),
     CART_NOT_FOUND(1007, "Cart not found", HttpStatus.NOT_FOUND),
-    CATEGORY_EXISTED(1008, "Category not found", HttpStatus.BAD_REQUEST),
+    CATEGORY_EXISTED(1008, "Category existed", HttpStatus.BAD_REQUEST),
     CART_ITEM_NOT_FOUND(1009, "Cart item not found", HttpStatus.BAD_REQUEST),
     ORDER_NOT_EXISTED(1010, "Order not existed", HttpStatus.NOT_FOUND),
     ORDER_ALREADY_DELETED(1011, "Order already deleted", HttpStatus.NOT_FOUND),
+    PRODUCT_NOT_ENOUGH_STOCK(1012, "Product not enough stock", HttpStatus.NOT_FOUND),
+
     ;
 
     int code;

@@ -50,11 +50,23 @@ public class OrderService {
 
         Order order = orderMapper.toOrder(orderRequest);
         order.setUser(user);
+        order.setStatus(OrderStatus.PENDING);//moi them
         order.setDeleted(false);
 
         List<OrderItem> orderItems = orderItemRequests.stream().map(req -> {
             Product product = productRepository.findById(req.getProductId())
                     .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOTFOUND));
+
+            //Kiểm tra số lượng trong kho
+            if(product.getQuantity() < req.getQuantity()){
+                throw new AppException(ErrorCode.PRODUCT_NOT_ENOUGH_STOCK);
+            }
+
+            //giảm số lượng và cập nhật lại
+//            product.setQuantity(product.getQuantity() - req.getQuantity());
+//            product.setSold(product.getSold() + req.getQuantity());
+//            productRepository.save(product);
+
             return OrderItem.builder()
                     .product(product)
                     .price(product.getPrice())
@@ -69,6 +81,17 @@ public class OrderService {
         Order savedOrder = orderRepository.save(order);
 
         cartRepository.delete(cart);
+
+        //Sau khi lưu đơn hàng với trạng thái Shopeed hoặc Delivered cập nhật số lượng kho và bán được (moi them)
+        if(order.getStatus() == OrderStatus.DELIVERED || order.getStatus() == OrderStatus.SHOPPED){
+            orderItems.forEach(orderItem -> {
+                Product product = orderItem.getProduct();
+                product.setQuantity(product.getQuantity() - orderItem.getQuantity());
+                product.setSold(product.getSold() + orderItem.getQuantity());
+                productRepository.save(product);
+            });
+        }
+
         return orderMapper.toOrderResponse(savedOrder);
     }
 
@@ -105,6 +128,25 @@ public class OrderService {
         if(Boolean.TRUE.equals(order.getDeleted())){
             throw new AppException(ErrorCode.ORDER_ALREADY_DELETED);
         }
+
+        OrderStatus oldStatus = order.getStatus();
+
+        //Nếu chuyển trạng thái chưa giao sang SHOPPED hoặc DELIVERED
+        if((newStatus == OrderStatus.DELIVERED || newStatus == OrderStatus.SHOPPED)
+                && (oldStatus != OrderStatus.DELIVERED && oldStatus != OrderStatus.SHOPPED)){
+            for(OrderItem item : order.getItems()){
+                Product product = item.getProduct();
+                int orderedQuantity = item.getQuantity();
+
+                if(product.getQuantity() < orderedQuantity){
+                    throw new AppException(ErrorCode.PRODUCT_NOT_ENOUGH_STOCK);
+                }
+                product.setQuantity(product.getQuantity() - orderedQuantity);
+                product.setSold(product.getSold() + orderedQuantity);
+                productRepository.save(product);
+            }
+        }
+
         order.setStatus(newStatus);
         Order updatedOrder = orderRepository.save(order);
         return orderMapper.toOrderResponse(updatedOrder);

@@ -13,4 +13,7 @@ public class ProductResponse {
     String name;
     String description;
     Double price;
+    Long categoryId;
+    Integer quantity;
+    Integer sold;
 }

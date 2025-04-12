@@ -12,4 +12,6 @@ public class ProductUpdateRequest {
     String name;
     String description;
     Double price;
+    Integer quantity;
+    Long categoryId;
 }

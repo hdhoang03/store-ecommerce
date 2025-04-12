@@ -22,13 +22,13 @@ public class CategoryController {
     CategoryService categoryService;
 
     @GetMapping
-    ApiResponse<List<CategoryResponse>> getAll(){
+    ApiResponse<List<CategoryResponse>> getAllCategory(){
         return ApiResponse.<List<CategoryResponse>>builder()
                 .result(categoryService.getAllCategories())
                 .build();
     }
 
-    @PostMapping("/add")
+    @PostMapping("/admin/add")
     ApiResponse<CategoryResponse> createCategory(@RequestBody CategoryCreationRequest request){
         return ApiResponse.<CategoryResponse>builder()
                 .message("Category has been created.")
@@ -36,16 +36,16 @@ public class CategoryController {
                 .build();
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/admin/delete/{id}")
     ApiResponse<String> deleteCategoryById(@PathVariable Long id){
         categoryService.deleteCategory(id);
         return ApiResponse.<String>builder()
-                .result("Category has been deleted.")
+                .message("Category has been deleted.")
                 .build();
     }
 
-    @PutMapping("/{id}")
-    ApiResponse<CategoryResponse> editCategory(@PathVariable Long id, CategoryUpdateRequest request){
+    @PutMapping("/admin/edit/{id}")
+    ApiResponse<CategoryResponse> editCategory(@PathVariable Long id, @RequestBody CategoryUpdateRequest request){
         return ApiResponse.<CategoryResponse>builder()
                 .result(categoryService.updateCategory(id, request))
                 .build();
