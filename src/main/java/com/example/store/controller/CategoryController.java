@@ -25,7 +25,6 @@ public class CategoryController {
     public ApiResponse<CategoryResponse> createCategory(@RequestBody CategoryCreationRequest request) {
         var result = categoryService.createCategory(request);
         return ApiResponse.<CategoryResponse>builder()
-                .code(1000)
                 .message("Create category successfully")
                 .result(result)
                 .build();
@@ -35,7 +34,6 @@ public class CategoryController {
     public ApiResponse<CategoryResponse> getCategoryById(@PathVariable Long id) {
         var result = categoryService.getCategoryById(id);
         return ApiResponse.<CategoryResponse>builder()
-                .code(1000)
                 .message("Get category by ID successfully")
                 .result(result)
                 .build();
@@ -45,7 +43,6 @@ public class CategoryController {
     public ApiResponse<List<CategoryResponse>> getAllCategories() {
         var result = categoryService.getAllCategories();
         return ApiResponse.<List<CategoryResponse>>builder()
-                .code(1000)
                 .message("Get all categories successfully")
                 .result(result)
                 .build();
@@ -55,7 +52,6 @@ public class CategoryController {
     public ApiResponse<CategoryResponse> updateCategory(@PathVariable Long id, @RequestBody CategoryUpdateRequest request) {
         var result = categoryService.updateCategory(id, request);
         return ApiResponse.<CategoryResponse>builder()
-                .code(1000)
                 .message("Update category successfully")
                 .result(result)
                 .build();
@@ -65,7 +61,6 @@ public class CategoryController {
     public ApiResponse<Void> deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategory(id);
         return ApiResponse.<Void>builder()
-                .code(1000)
                 .message("Delete category successfully")
                 .build();
     }

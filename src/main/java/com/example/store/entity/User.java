@@ -28,4 +28,10 @@ public class User {
 
     @ManyToMany
     Set<Role> roles;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    Cart cart;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    Set<Address> addresses;
 }

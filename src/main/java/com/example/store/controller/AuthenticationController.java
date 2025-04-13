@@ -31,7 +31,6 @@ public class AuthenticationController {
         var result = authenticationService.authenticationResponse(request);
 
         return ApiResponse.<AuthenticationResponse>builder()
-                .code(1000)
                 .result(result)
                 .build();
     }
@@ -56,7 +55,6 @@ public class AuthenticationController {
     ApiResponse<AuthenticationResponse> refreshToken(@RequestBody RefreshRequest request) throws JOSEException, ParseException {
         var result = authenticationService.refreshToken(request);
         return ApiResponse.<AuthenticationResponse>builder()
-                .code(1000)
                 .result(result)
                 .build();
     }

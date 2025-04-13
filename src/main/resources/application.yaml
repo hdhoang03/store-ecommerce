@@ -22,3 +22,13 @@ jwt:
 
 pagination:
   default-page-size: 4
+
+payment:
+  vnPay:
+    url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+    tmnCode: OPEYU6E4
+    secretKey: GYIOOG67IRBGS6GA1C4Q9VTOICRG1LDP
+    returnUrl: http://localhost:8080/store/api/payment/vn-pay-callback
+    version: 2.1.0
+    command: pay
+    orderType: other

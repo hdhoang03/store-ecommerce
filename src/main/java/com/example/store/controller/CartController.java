@@ -19,7 +19,6 @@ public class CartController {
     @GetMapping("/my-cart")
     ApiResponse<CartResponse> getCart(){
         return ApiResponse.<CartResponse>builder()
-                .code(1000)
                 .result(cartService.getCartByUsername())
                 .build();
     }
@@ -36,7 +35,6 @@ public class CartController {
     ApiResponse<CartResponse> deleteFromCart(@PathVariable Long productId){
         cartService.deleteFromCart(productId);
         return ApiResponse.<CartResponse>builder()
-                .code(1000)
                 .message("Product has been removed from cart successfully.")
                 .build();
     }

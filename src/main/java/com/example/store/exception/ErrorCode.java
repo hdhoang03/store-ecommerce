@@ -19,7 +19,9 @@ public enum ErrorCode {
     USER_NOT_EXISTED(1005, "User not existed", HttpStatus.NOT_FOUND),
     PRODUCT_NOT_IN_CART(1006, "Product not it cart", HttpStatus.NOT_FOUND),
     CART_NOT_FOUND(1007, "Cart not found", HttpStatus.NOT_FOUND),
-
+    ADDRESS_NOT_FOUND(1008, "Address not found", HttpStatus.NOT_FOUND),
+    ORDER_NOT_FOUND(1009, "Order not found", HttpStatus.NOT_FOUND),
+    UNAUTHORIZED(1010, "You do not have permission", HttpStatus.FORBIDDEN),
     ;
 
     int code;
