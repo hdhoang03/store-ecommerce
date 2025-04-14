@@ -1,6 +1,7 @@
 package com.example.store.controller;
 
 import com.example.store.dto.ApiResponse;
+import com.example.store.dto.request.LockUserRequest;
 import com.example.store.dto.request.UserCreationRequest;
 import com.example.store.dto.request.UserUpdateRequest;
 import com.example.store.dto.response.UserResponse;
@@ -28,7 +29,7 @@ public class UserController {
                 .build();
     }
 
-    @GetMapping("/get-all-users")
+    @GetMapping("/admin/get-all-users")
     ApiResponse<List<UserResponse>> getAllUser(){
         return ApiResponse.<List<UserResponse>>builder()
                 .result(userService.getUser())
@@ -50,11 +51,20 @@ public class UserController {
                 .build();
     }
 
-    @DeleteMapping("/{userId}")
-    ApiResponse<String> deleteUser(@PathVariable String userId){
+    @DeleteMapping("/admin/delete")
+    ApiResponse<String> deleteUser(@RequestBody String userId){
         userService.deleteUser(userId);
         return ApiResponse.<String>builder()
                 .result("User has been deleted.")
+                .build();
+    }
+
+    @PostMapping("/admin/lock")
+    ApiResponse<Void> lockOrUnlockUser(@RequestBody LockUserRequest request){
+        userService.lockOrUnlockUser(request);
+        String message = request.isLock() ? "User account has been locked." : "User account has been unlocked.";
+        return ApiResponse.<Void>builder()
+                .message(message)
                 .build();
     }
 }

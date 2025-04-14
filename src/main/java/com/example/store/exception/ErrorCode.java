@@ -24,6 +24,7 @@ public enum ErrorCode {
     ORDER_NOT_EXISTED(1010, "Order not existed", HttpStatus.NOT_FOUND),
     ORDER_ALREADY_DELETED(1011, "Order already deleted", HttpStatus.NOT_FOUND),
     PRODUCT_NOT_ENOUGH_STOCK(1012, "Product not enough stock", HttpStatus.NOT_FOUND),
+    ACCOUNT_DISABLE(1013, "User account is disabled", HttpStatus.BAD_REQUEST),
 
     ;
 

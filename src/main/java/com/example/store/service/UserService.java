@@ -1,6 +1,7 @@
 package com.example.store.service;
 
 import com.example.store.constaint.PredefinedRole;
+import com.example.store.dto.request.LockUserRequest;
 import com.example.store.dto.request.UserCreationRequest;
 import com.example.store.dto.request.UserUpdateRequest;
 import com.example.store.dto.response.UserResponse;
@@ -36,6 +37,7 @@ public class UserService {
 
     public UserResponse createUser(UserCreationRequest request){
         User user = userMapper.toUser(request);
+        user.setEnabled(true);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         HashSet<Role> roles = new HashSet<>();
@@ -73,6 +75,15 @@ public class UserService {
                 .stream()//thay vì dùng for dùng stream sẽ gọn hơn
                 .map(userMapper::toUserResponse)
                 .toList();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public void lockOrUnlockUser(LockUserRequest request){
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        user.setEnabled(!request.isLock());//true = active, false = inactive
+        userRepository.save(user);
     }
 
     public UserResponse getMyInfo(){

@@ -24,6 +24,7 @@ public class User {
     String name;
     String email;
     LocalDate dob;
+    Boolean enabled;
 
     @ManyToMany
     Set<Role> roles;

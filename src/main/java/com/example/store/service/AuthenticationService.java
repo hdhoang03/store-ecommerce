@@ -129,6 +129,10 @@ public class AuthenticationService {
         var user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(()->new AppException(ErrorCode.UNAUTHENTICATED));
 
+        if(!user.getEnabled()){
+            throw new AppException(ErrorCode.ACCOUNT_DISABLE);
+        }
+
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
 
