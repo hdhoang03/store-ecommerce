@@ -68,7 +68,7 @@ public class CartService {
         cartItemRepository.save(item);
 
 //        //Làm mới cart từ database (chỉ dùng khi trả về toàn bộ giỏ hàng)
-//        Cart updateCart = cartRepository.findByUser(user)
+//        Cart updateCart = cartRepository.findAllByUser(user)
 //                .orElseThrow(()-> new AppException(ErrorCode.CART_NOT_FOUND));
 
         //Tính tổng tiền sản phẩm với số lượng vừa thêm

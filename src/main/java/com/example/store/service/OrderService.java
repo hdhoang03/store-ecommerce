@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -31,6 +32,7 @@ public class OrderService {
     CartItemRepository cartItemRepository;
     CartRepository cartRepository;
     ProductRepository productRepository;
+    AddressRepository addressRepository;
 
     @Transactional
     public OrderResponse createOrderFromCart(OrderRequest request){
@@ -43,15 +45,29 @@ public class OrderService {
         List<CartItem> cartItems = cartItemRepository.findByCart(cart);
         List<OrderItemRequest> orderItemRequests = orderMapper.toOrderItemRequestList(cartItems);
 
-        OrderRequest orderRequest = OrderRequest.builder()
-                .items(orderItemRequests)
-                .shippingAddress(request.getShippingAddress())
-                .build();
+        Address shippingAddress = addressRepository.findById(request.getAddressId())
+                .filter(address -> address.getUser().getId().equals(user.getId()))
+                .orElseThrow(() -> new AppException(ErrorCode.ADDRESS_NOT_FOUND));
 
-        Order order = orderMapper.toOrder(orderRequest);
-        order.setUser(user);
-        order.setStatus(OrderStatus.PENDING);//moi them
-        order.setDeleted(false);
+//        OrderRequest orderRequest = OrderRequest.builder()
+//                .items(orderItemRequests)
+//                .shippingAddress(request.getShippingAddress())
+//                .build();
+
+//        Order order = orderMapper.toOrder(
+//                OrderRequest.builder()
+//                        .items(orderItemRequests)
+//                        .addressId()
+//                        .build());
+
+        //Tạo 1 order mới
+        Order order = Order.builder()
+                .createdAt(LocalDateTime.now())
+                .user(user)
+                .shippingAddress(shippingAddress.getAddress())
+                .status(OrderStatus.PENDING)
+                .deleted(false)
+                .build();
 
         List<OrderItem> orderItems = orderItemRequests.stream().map(req -> {
             Product product = productRepository.findById(req.getProductId())
@@ -61,11 +77,6 @@ public class OrderService {
             if(product.getQuantity() < req.getQuantity()){
                 throw new AppException(ErrorCode.PRODUCT_NOT_ENOUGH_STOCK);
             }
-
-            //giảm số lượng và cập nhật lại
-//            product.setQuantity(product.getQuantity() - req.getQuantity());
-//            product.setSold(product.getSold() + req.getQuantity());
-//            productRepository.save(product);
 
             return OrderItem.builder()
                     .product(product)
@@ -83,7 +94,7 @@ public class OrderService {
         cartRepository.delete(cart);
 
         //Sau khi lưu đơn hàng với trạng thái Shopeed hoặc Delivered cập nhật số lượng kho và bán được (moi them)
-        if(order.getStatus() == OrderStatus.DELIVERED || order.getStatus() == OrderStatus.SHOPPED){
+        if(order.getStatus() == OrderStatus.DELIVERED || order.getStatus() == OrderStatus.SHIPPED){
             orderItems.forEach(orderItem -> {
                 Product product = orderItem.getProduct();
                 product.setQuantity(product.getQuantity() - orderItem.getQuantity());
@@ -132,8 +143,8 @@ public class OrderService {
         OrderStatus oldStatus = order.getStatus();
 
         //Nếu chuyển trạng thái chưa giao sang SHOPPED hoặc DELIVERED
-        if((newStatus == OrderStatus.DELIVERED || newStatus == OrderStatus.SHOPPED)
-                && (oldStatus != OrderStatus.DELIVERED && oldStatus != OrderStatus.SHOPPED)){
+        if((newStatus == OrderStatus.DELIVERED || newStatus == OrderStatus.SHIPPED)
+                && (oldStatus != OrderStatus.DELIVERED && oldStatus != OrderStatus.SHIPPED)){
             for(OrderItem item : order.getItems()){
                 Product product = item.getProduct();
                 int orderedQuantity = item.getQuantity();
@@ -151,6 +162,16 @@ public class OrderService {
         Order updatedOrder = orderRepository.save(order);
         return orderMapper.toOrderResponse(updatedOrder);
     }
+//
+//    public void updateOrderStatusToDelivered(String orderCode){
+//        Order order = orderRepository.findByOrderCode(orderCode);
+//        if(order != null && order.getStatus() == OrderStatus.PENDING){
+//            order.setStatus(OrderStatus.DELIVERED);
+//            orderRepository.save(order);
+//        } else {
+//            throw new RuntimeException("Order not found or already processed.");
+//        }
+//    }
 
     private double calculateTotalPrice(List<OrderItem> orderItems) {
         if (orderItems == null || orderItems.isEmpty()){

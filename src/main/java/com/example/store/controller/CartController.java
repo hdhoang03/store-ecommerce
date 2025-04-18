@@ -43,9 +43,8 @@ public class CartController {
                 .build();
     }
 
-    @DeleteMapping("/remove")
-    ApiResponse<CartResponse> removeFromCart(@RequestParam("productId") Long productId,
-                                             @RequestParam("quantity") int quantity){
+    @DeleteMapping("/remove/{productId}")
+    ApiResponse<CartResponse> removeFromCart(@PathVariable Long productId, @RequestParam("quantity") int quantity){
         return ApiResponse.<CartResponse>builder()
                 .message("Quantity of product has been removed")
                 .result(cartService.removeFromCart(productId, quantity))

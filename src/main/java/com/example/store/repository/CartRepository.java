@@ -12,6 +12,9 @@ import java.util.Optional;
 public interface CartRepository extends JpaRepository<Cart, Long> {
     @EntityGraph(attributePaths = {"items", "items.product"})
     Optional<Cart> findByUser(User user);
+
+    @EntityGraph(attributePaths = {"items", "items.product"})
+    Optional<Cart> findByUserIdAndId(String userId, Long cartId);
 }
 /*
 * đang dùng @ManyToOne(fetch = FetchType.LAZY) cho product và cart, điều này là tốt về hiệu năng

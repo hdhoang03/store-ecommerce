@@ -11,6 +11,7 @@ import java.util.List;
 @Builder
 public class OrderResponse {
     Long id;
+    String orderCode;//moi them
     LocalDateTime createdAt;
     OrderStatus status;
     String shippingAddress;

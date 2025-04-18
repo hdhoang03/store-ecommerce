@@ -5,6 +5,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -25,6 +27,9 @@ public class User {
     String email;
     LocalDate dob;
     Boolean enabled;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<Address> addresses = new ArrayList<>();
 
     @ManyToMany
     Set<Role> roles;

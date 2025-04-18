@@ -23,7 +23,7 @@ public class Order {
     LocalDateTime createdAt;
     @Enumerated(EnumType.STRING)
     OrderStatus status;
-    String shippingAddress;
+    String shippingAddress; //cái này chỉ khi truyền vào address bằng tay
     @ManyToOne
     User user;
     Double totalPrice;
@@ -31,6 +31,10 @@ public class Order {
     @Builder.Default
     @Column(nullable = false)
     Boolean deleted = false;
+
+//    @ManyToOne
+//    @JoinColumn(name = "shipping_address_id")
+//    Address shippingAddress;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     List<OrderItem> items = new ArrayList<>();
