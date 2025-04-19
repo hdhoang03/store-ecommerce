@@ -20,6 +20,7 @@ public interface OrderMapper {
     @Mapping(target = "user", ignore = true)
     Order toOrder(OrderRequest request);
 
+    @Mapping(source = "orderCode", target = "orderCode")
     OrderResponse toOrderResponse(Order order);
 
     @Mapping(source = "product.id", target = "productId")

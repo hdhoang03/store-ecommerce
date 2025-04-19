@@ -43,7 +43,7 @@ public class VnPayUtil {
         try {
             ipAddress = request.getHeader("X-FORWARDED-FOR"); //Lấy địa chỉ ip của client gửi request
             if (ipAddress == null){
-                ipAddress =request.getRemoteAddr();
+                ipAddress = request.getRemoteAddr();
             }
         } catch (Exception e){
             ipAddress = "Invalid IP: " + e.getMessage();
@@ -71,5 +71,9 @@ public class VnPayUtil {
                                         : entry.getKey()) + "=" +
                                         URLEncoder.encode(entry.getValue(), StandardCharsets.US_ASCII))
                 .collect(Collectors.joining("&"));
+    }
+
+    public static String generateOderCode(){ //Mới thêm
+        return "ORD" + getRandomNumber(6);
     }
 }

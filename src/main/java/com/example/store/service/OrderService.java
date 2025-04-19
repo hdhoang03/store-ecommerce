@@ -1,5 +1,6 @@
 package com.example.store.service;
 
+import com.example.store.configuration.VnPayUtil;
 import com.example.store.constaint.OrderStatus;
 import com.example.store.dto.request.OrderItemRequest;
 import com.example.store.dto.request.OrderRequest;
@@ -61,7 +62,9 @@ public class OrderService {
 //                        .build());
 
         //Tạo 1 order mới
+        String orderCode = VnPayUtil.getRandomNumber(8);//Mới thêm
         Order order = Order.builder()
+                .orderCode(orderCode)//Mới thêm
                 .createdAt(LocalDateTime.now())
                 .user(user)
                 .shippingAddress(shippingAddress.getAddress())
@@ -95,12 +98,13 @@ public class OrderService {
 
         //Sau khi lưu đơn hàng với trạng thái Shopeed hoặc Delivered cập nhật số lượng kho và bán được (moi them)
         if(order.getStatus() == OrderStatus.DELIVERED || order.getStatus() == OrderStatus.SHIPPED){
-            orderItems.forEach(orderItem -> {
-                Product product = orderItem.getProduct();
-                product.setQuantity(product.getQuantity() - orderItem.getQuantity());
-                product.setSold(product.getSold() + orderItem.getQuantity());
-                productRepository.save(product);
-            });
+            updateStock(order);
+//            orderItems.forEach(orderItem -> {
+//                Product product = orderItem.getProduct();
+//                product.setQuantity(product.getQuantity() - orderItem.getQuantity());
+//                product.setSold(product.getSold() + orderItem.getQuantity());
+//                productRepository.save(product);
+//            });
         }
 
         return orderMapper.toOrderResponse(savedOrder);
@@ -145,33 +149,38 @@ public class OrderService {
         //Nếu chuyển trạng thái chưa giao sang SHOPPED hoặc DELIVERED
         if((newStatus == OrderStatus.DELIVERED || newStatus == OrderStatus.SHIPPED)
                 && (oldStatus != OrderStatus.DELIVERED && oldStatus != OrderStatus.SHIPPED)){
-            for(OrderItem item : order.getItems()){
-                Product product = item.getProduct();
-                int orderedQuantity = item.getQuantity();
-
-                if(product.getQuantity() < orderedQuantity){
-                    throw new AppException(ErrorCode.PRODUCT_NOT_ENOUGH_STOCK);
-                }
-                product.setQuantity(product.getQuantity() - orderedQuantity);
-                product.setSold(product.getSold() + orderedQuantity);
-                productRepository.save(product);
-            }
+            updateStock(order);
+//            for(OrderItem item : order.getItems()){
+//                Product product = item.getProduct();
+//                int orderedQuantity = item.getQuantity();
+//
+//                if(product.getQuantity() < orderedQuantity){
+//                    throw new AppException(ErrorCode.PRODUCT_NOT_ENOUGH_STOCK);
+//                }
+//                product.setQuantity(product.getQuantity() - orderedQuantity);
+//                product.setSold(product.getSold() + orderedQuantity);
+//                productRepository.save(product);
+//            }
         }
 
         order.setStatus(newStatus);
         Order updatedOrder = orderRepository.save(order);
         return orderMapper.toOrderResponse(updatedOrder);
     }
-//
-//    public void updateOrderStatusToDelivered(String orderCode){
-//        Order order = orderRepository.findByOrderCode(orderCode);
-//        if(order != null && order.getStatus() == OrderStatus.PENDING){
-//            order.setStatus(OrderStatus.DELIVERED);
-//            orderRepository.save(order);
-//        } else {
-//            throw new RuntimeException("Order not found or already processed.");
-//        }
-//    }
+
+    //Mới mở hàm này
+    public void updateOrderStatusToDelivered(String orderCode){
+        Order order = orderRepository.findByOrderCode(orderCode)
+                .orElseThrow(()-> new AppException(ErrorCode.ORDER_NOT_EXISTED)); //Mới thêm
+
+        if(order != null && order.getStatus() == OrderStatus.PENDING){
+            updateStock(order);//Cập nhật số lượng sản phẩm trong kho
+            order.setStatus(OrderStatus.DELIVERED);
+            orderRepository.save(order);
+        } else {
+            throw new RuntimeException("Order not found or already processed.");
+        }
+    }
 
     private double calculateTotalPrice(List<OrderItem> orderItems) {
         if (orderItems == null || orderItems.isEmpty()){
@@ -185,5 +194,20 @@ public class OrderService {
            return item.getPrice() * item.getQuantity();
         })
                 .sum();
+    }
+
+    public void updateStock(Order order){
+        for(OrderItem item : order.getItems()){
+            Product product = item.getProduct();
+            int orderedQuantiy = item.getQuantity();
+
+            if(product.getQuantity() < orderedQuantiy){
+                throw new AppException(ErrorCode.PRODUCT_NOT_ENOUGH_STOCK);
+            }
+
+            product.setQuantity(product.getQuantity() - orderedQuantiy);
+            product.setSold(product.getSold() + orderedQuantiy);
+            productRepository.save(product);
+        }
     }
 }

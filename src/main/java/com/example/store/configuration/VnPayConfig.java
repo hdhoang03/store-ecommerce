@@ -39,7 +39,7 @@ public class VnPayConfig {
     @Value("${payment.vnPay.orderType}")
     String orderType;
 
-    public Map<String, String> getVNPayConfig(){//String txnRef, String orderInfo
+    public Map<String, String> getVNPayConfig(String orderCode){//String txnRef, String orderInfo
         Map<String, String> vnParamsMap = new HashMap<>();
 
         vnParamsMap.put("vnp_Version", vnp_Version);
@@ -47,8 +47,8 @@ public class VnPayConfig {
         vnParamsMap.put("vnp_TmnCode", vnp_TmnCode);
         vnParamsMap.put("vnp_CurrCode", CURRENCY_CODE);
 
-//        vnParamsMap.put("vnp_TxnRef", txnRef);
-//        vnParamsMap.put("vnp_OrderInfo", orderInfo);
+        vnParamsMap.put("vnp_TxnRef", orderCode);//
+        vnParamsMap.put("vnp_OrderInfo", "Thanh toan don hang" + orderCode);//
 
         vnParamsMap.put("vnp_OrderType", orderType);
         vnParamsMap.put("vnp_Locale", LOCALE);
@@ -58,8 +58,9 @@ public class VnPayConfig {
         vnParamsMap.put("vnp_ExpireDate", getExpireTime(15));
 
         //Tạo mã đơn hàng ngẫu nhiên
-        vnParamsMap.put("vnp_TxnRef", VnPayUtil.getRandomNumber(8));
-        vnParamsMap.put("vnp_OrderInfo", "Thanh toan don hang: " + VnPayUtil.getRandomNumber(8));
+//        vnParamsMap.put("vnp_TxnRef", VnPayUtil.getRandomNumber(8));
+//        vnParamsMap.put("vnp_OrderInfo", "Thanh toan don hang: " + VnPayUtil.getRandomNumber(8));
+
 //        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
 //        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
 //        String vnpCreateDate = formatter.format(calendar.getTime());

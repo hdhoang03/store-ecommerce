@@ -31,9 +31,9 @@ public class PaymentController {
     @GetMapping("/vn-pay-callback")
     ApiResponse<PaymentResponse> payCallbackHandler(HttpServletRequest request){
         String status = request.getParameter("vnp_ResponseCode");
-//        String txnRef = request.getParameter("vnp_TxnRef"); //lấy mã đơn hàng từ VNPAY callback
+        String txnRef = request.getParameter("vnp_TxnRef"); //lấy mã đơn hàng từ VNPAY callback (mới thêm)
         if ("00".equals(status)){
-//            orderService.updateOrderStatusToDelivered(txnRef);
+            orderService.updateOrderStatusToDelivered(txnRef);
 
             return ApiResponse.<PaymentResponse>builder()
                     .message("Success")

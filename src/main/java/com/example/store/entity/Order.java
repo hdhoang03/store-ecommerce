@@ -32,9 +32,8 @@ public class Order {
     @Column(nullable = false)
     Boolean deleted = false;
 
-//    @ManyToOne
-//    @JoinColumn(name = "shipping_address_id")
-//    Address shippingAddress;
+    @Column(unique = true)
+    String orderCode; //Mới thêm
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     List<OrderItem> items = new ArrayList<>();
