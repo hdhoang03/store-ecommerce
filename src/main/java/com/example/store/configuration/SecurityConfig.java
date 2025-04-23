@@ -29,7 +29,7 @@ public class SecurityConfig {
             "/users", "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh",
             "/category", "/category/**",
             "/api/payment/vn-pay-callback",//moi them
-            "/mail/send"
+            "/mail/send", "/mail/verify-email"
     };
 
     @Bean

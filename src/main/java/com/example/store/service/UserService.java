@@ -4,6 +4,7 @@ import com.example.store.constaint.PredefinedRole;
 import com.example.store.dto.request.LockUserRequest;
 import com.example.store.dto.request.UserCreationRequest;
 import com.example.store.dto.request.UserUpdateRequest;
+import com.example.store.dto.request.SendVerificationEmailRequest;
 import com.example.store.dto.response.UserResponse;
 import com.example.store.entity.Role;
 import com.example.store.entity.User;
@@ -22,8 +23,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 
 @Service
 @Slf4j
@@ -34,22 +37,34 @@ public class UserService {
     UserRepository userRepository;
     RoleReponsitory roleReponsitory;
     PasswordEncoder passwordEncoder;
+    RedisService redisService;
+    EmailService emailService;
 
     public UserResponse createUser(UserCreationRequest request){
         User user = userMapper.toUser(request);
-        user.setEnabled(true);
+        user.setEnabled(false);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         HashSet<Role> roles = new HashSet<>();
         roleReponsitory.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
-
         user.setRoles(roles);
 
         try {
             user = userRepository.save(user);
+
+            //Tạo mã xác minh và lưu vào redis
+            String verificationCode = generateVerificationCode();
+            String redisKey = "verify:" + user.getUsername();
+            redisService.setValue(redisKey, verificationCode, 20);
+
+            //Gửi email
+            emailService.sendVerificationCode(SendVerificationEmailRequest.builder()
+                    .recipientEmail(user.getEmail())
+                    .verificationCode(verificationCode)
+                    .build());
         } catch (DataIntegrityViolationException e){
             if(userRepository.existsByUsername(request.getUsername())){
-                throw new AppException(ErrorCode.USERNAME_EXISTED);
+                throw new AppException(ErrorCode.USER_NOT_EXISTED);
             }
         }
         return userMapper.toUserResponse(user);
@@ -97,5 +112,26 @@ public class UserService {
 //
 //        var userResponse = userMapper.toUserResponse(user);
 //        return userResponse;
+    }
+
+    //Tạo ngẫu nhiên xác thực 6 số
+    private String generateVerificationCode(){
+        return String.format("%06d", new Random().nextInt(1000000));
+    }
+
+    public boolean verifyEmail(String username, String code){
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        String redisKey = "verify:" + username;
+        Object storedCode = redisService.getValue(redisKey);
+
+        if(storedCode != null && storedCode.equals(code)){
+            user.setEnabled(true);
+            userRepository.save(user);
+            redisService.deleteValue(redisKey); //Xác minh xong xóa khỏi redis
+            return true;
+        }
+        return false;
     }
 }
