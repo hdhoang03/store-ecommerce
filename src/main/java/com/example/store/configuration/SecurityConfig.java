@@ -28,7 +28,8 @@ public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {"/product", "/product/by-id/**", "/product/by-name/**",
             "/users", "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh",
             "/category", "/category/**",
-            "/api/payment/vn-pay-callback"//moi them
+            "/api/payment/vn-pay-callback",//moi them
+            "/mail/send"
     };
 
     @Bean
