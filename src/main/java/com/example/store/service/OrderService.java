@@ -34,6 +34,7 @@ public class OrderService {
     CartRepository cartRepository;
     ProductRepository productRepository;
     AddressRepository addressRepository;
+    EmailService emailService;
 
     @Transactional
     public OrderResponse createOrderFromCart(OrderRequest request){
@@ -62,9 +63,9 @@ public class OrderService {
 //                        .build());
 
         //Tạo 1 order mới
-        String orderCode = VnPayUtil.getRandomNumber(8);//Mới thêm
+        String orderCode = VnPayUtil.getRandomNumber(8);
         Order order = Order.builder()
-                .orderCode(orderCode)//Mới thêm
+                .orderCode(orderCode)
                 .createdAt(LocalDateTime.now())
                 .user(user)
                 .shippingAddress(shippingAddress.getAddress())
@@ -173,10 +174,16 @@ public class OrderService {
         Order order = orderRepository.findByOrderCode(orderCode)
                 .orElseThrow(()-> new AppException(ErrorCode.ORDER_NOT_EXISTED)); //Mới thêm
 
+        System.out.println("Order tìm được: " + order.getOrderCode());
+        System.out.println("Trạng thái hiện tại: " + order.getStatus());
+
         if(order != null && order.getStatus() == OrderStatus.PENDING){
             updateStock(order);//Cập nhật số lượng sản phẩm trong kho
             order.setStatus(OrderStatus.DELIVERED);
             orderRepository.save(order);
+            System.out.println("Chuẩn bị gửi email...");
+            emailService.sendOrderSuccessEmail(order.getUser(), order);
+            System.out.println("Đã gọi hàm gửi email.");
         } else {
             throw new RuntimeException("Order not found or already processed.");
         }

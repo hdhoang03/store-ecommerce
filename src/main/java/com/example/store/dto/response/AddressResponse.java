@@ -13,5 +13,6 @@ import java.util.List;
 public class AddressResponse {
     Long id;
     String address;
+    String phoneNum;
 //    Boolean isDefault;
 }

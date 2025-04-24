@@ -73,6 +73,7 @@ public class AddressService {
         if(!address.getUser().getId().equals(user.getId())){
             throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
         }
+        address.setPhoneNum(request.getPhoneNum());
         address.setAddress(request.getAddress());
         return addressMapper.toAddressResponse(addressRepository.save(address));
     }

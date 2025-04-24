@@ -15,6 +15,7 @@ public class Address {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     String address;
+    String phoneNum;
 
 //    Boolean isDefault;//đánh dấu địa chỉ mong muốn làm mặc định
 

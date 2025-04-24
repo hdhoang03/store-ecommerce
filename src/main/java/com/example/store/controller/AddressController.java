@@ -38,7 +38,7 @@ public class AddressController {
     ApiResponse<AddressResponse> updateAddress(@RequestBody AddressUpdateRequest request){
         return ApiResponse.<AddressResponse>builder()
                 .message("Update an address success!")
-                .result(addressService.updateAddress(request))
+//                .result(addressService.updateAddress(request))
                 .build();
     }
 

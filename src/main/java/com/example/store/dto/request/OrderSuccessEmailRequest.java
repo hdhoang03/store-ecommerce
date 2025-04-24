@@ -4,12 +4,12 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AddressUpdateRequest {
-    Long id;
-    String address;
-    String phoneNum;
+public class OrderSuccessEmailRequest {
+    String recipient;
+    String orderCode;
+    String content;
 }

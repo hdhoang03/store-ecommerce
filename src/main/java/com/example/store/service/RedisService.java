@@ -1,5 +1,6 @@
 package com.example.store.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -18,8 +19,10 @@ public class RedisService {
         redisTemplate.opsForValue().set(key, value, timeOutInMinutes, TimeUnit.MINUTES);
     }
 
-    public Object getValue(String key){
-        return redisTemplate.opsForValue().get(key);
+    public <T> T getValue(String key, Class<T> clazz){
+        Object raw = redisTemplate.opsForValue().get(key);
+        return raw == null ? null : new ObjectMapper().convertValue(raw, clazz);
+//        return redisTemplate.opsForValue().get(key);
     }
 
     public void deleteValue(String key){
