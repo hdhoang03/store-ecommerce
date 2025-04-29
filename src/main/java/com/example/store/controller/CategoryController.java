@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RequiredArgsConstructor
-@RequestMapping("/category")
+@RequestMapping("/categories")
 @RestController
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j

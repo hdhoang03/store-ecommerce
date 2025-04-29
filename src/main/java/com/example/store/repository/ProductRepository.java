@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {//theo id nên Long
-    @EntityGraph(attributePaths = "category")
+    @EntityGraph(attributePaths = {"category", "imageUrls"})
     Optional<Product> findById(Long id);
 
     @Query("SELECT p FROM Product p WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))")

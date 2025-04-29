@@ -25,11 +25,17 @@ public class SecurityConfig {
     @Autowired
     private CustomJwtDecoder customJwtDecoder;
 
-    private final String[] PUBLIC_ENDPOINTS = {"/product", "/product/by-id/**", "/product/by-name/**",
+    private final String[] PUBLIC_ENDPOINTS = {"/products", "/products/by-id/**", "/products/by-name/**", "/products/images/**",
             "/users", "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh",
-            "/category", "/category/**",
+            "/categories", "/categories/**",
             "/api/payment/vn-pay-callback",//moi them
-            "/mail/send", "/mail/verify-email"
+            "/mail/send", "/mail/verify-email",
+            "/uploads/images/**"
+    };
+
+    private final String[] ADMIN_ENDPOINTS = {"/categories/admin/add", "/categories/admin/edit/**", "/categories/admin/delete/**",
+            "/orders/admin/get-all-orders", "/orders/admin/delete/**", "/orders/admin/status/**",
+            "/products/admin/add", "/products/admin/delete/**", "/products/admin/edit/**", "/products/admin/uploadImg/**"
     };
 
     @Bean
@@ -37,6 +43,9 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(request ->
                 request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers(HttpMethod.POST, ADMIN_ENDPOINTS).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, ADMIN_ENDPOINTS).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, ADMIN_ENDPOINTS).hasRole("ADMIN")
                         .anyRequest().authenticated());
 
         httpSecurity.oauth2ResourceServer(oauth2 ->

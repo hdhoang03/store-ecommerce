@@ -86,4 +86,9 @@ public class ProductService {
 
         return productMapper.toProductResponse(productRepository.save(product));
     }
+
+    public Product getProductEntityById(Long id){
+        return productRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOTFOUND));
+    }
 }

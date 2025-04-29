@@ -2,12 +2,15 @@ package com.example.store.service;
 
 import com.example.store.constaint.PredefinedRole;
 import com.example.store.dto.request.*;
+import com.example.store.dto.response.AddressResponse;
 import com.example.store.dto.response.UserResponse;
+import com.example.store.entity.Address;
 import com.example.store.entity.Role;
 import com.example.store.entity.User;
 import com.example.store.exception.AppException;
 import com.example.store.exception.ErrorCode;
 import com.example.store.mapper.UserMapper;
+import com.example.store.repository.AddressRepository;
 import com.example.store.repository.RoleReponsitory;
 import com.example.store.repository.UserRepository;
 import lombok.AccessLevel;
@@ -24,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -36,6 +40,7 @@ public class UserService {
     PasswordEncoder passwordEncoder;
     RedisService redisService;
     EmailService emailService;
+    AddressRepository addressRepository;
 
     public UserResponse createUser(UserCreationRequest request){
         if(userRepository.existsByUsername(request.getUsername())){
@@ -110,6 +115,18 @@ public class UserService {
 
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteUser(String userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        if(user.getUsername().equalsIgnoreCase("admin")){
+            user.setEnabled(false);
+            userRepository.save(user);
+            log.info("Admin account disabled instead of deleted.");
+            return;
+        }
+
+        user.getRoles().clear();
+        userRepository.save(user);
         userRepository.deleteById(userId);
     }
 
@@ -126,21 +143,18 @@ public class UserService {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        user.setEnabled(!request.isLock());//true = active, false = inactive
+        user.setEnabled(request.isLock());//true = active, false = inactive
         userRepository.save(user);
     }
 
     public UserResponse getMyInfo(){
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByUsername(userName).map(userMapper::toUserResponse)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-//        var getContext = SecurityContextHolder.getContext();
-//        String getName = getContext.getAuthentication().getName();
-//
-//        User user = userRepository.findByUsername(getName).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
-//
-//        var userResponse = userMapper.toUserResponse(user);
-//        return userResponse;
+        User user = userRepository.findByUsername(userName).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        user.getAddresses().forEach(address -> {
+            System.out.println("Address: " + address.getPhoneNum());
+        });
+        return userMapper.toUserResponse(user);
     }
 
     //Tạo ngẫu nhiên xác thực 6 số

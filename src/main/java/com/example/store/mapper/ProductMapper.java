@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = ProductImageMapper.class)
 public interface ProductMapper {
     @Mapping(target = "sold", ignore = true)
     Product toProduct(ProductCreationRequest request);

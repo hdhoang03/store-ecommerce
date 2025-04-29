@@ -6,7 +6,7 @@ import com.example.store.dto.response.UserResponse;
 import com.example.store.entity.User;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {AddressMapper.class})//Vì address qua addressMapper bên user mới lấy được dữ liệu
 public interface UserMapper {
     @Mapping(target = "email", source = "email")
     User toUser(UserCreationRequest request);

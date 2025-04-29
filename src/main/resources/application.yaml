@@ -36,6 +36,11 @@ spring:
       host: localhost
       port: 6379
 
+  mvc:
+    static-path-pattern: /store/uploads/images/**
+  resources:
+    static-locations: file:C:/Users/HP/OneDrive/Desktop/uploads/images/
+
 jwt:
   signerKey: "b2yoP+BXkNpTkT3UA7TSAHxqoLxuzgZIRmscynx2zbm5PHbtt3U+JB5N1G6AIrNg"
   valid-duration: 3600

@@ -41,11 +41,13 @@ public class CategoryService {
 
     @PreAuthorize("hasRole('ADMIN')")
     public CategoryResponse updateCategory(Long id, CategoryUpdateRequest request){
-        Category category = categoryRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.CATEGORY_EXISTED));
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(()-> new AppException(ErrorCode.CATEGORY_EXISTED));
 
         categoryMapper.updateCategory(category, request);
+        category = categoryRepository.save(category);
 
-        return categoryMapper.toCategoryResponse(categoryRepository.save(category));
+        return categoryMapper.toCategoryResponse(category);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
