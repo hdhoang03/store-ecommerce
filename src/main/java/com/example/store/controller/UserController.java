@@ -4,6 +4,7 @@ import com.example.store.dto.ApiResponse;
 import com.example.store.dto.request.LockUserRequest;
 import com.example.store.dto.request.UserCreationRequest;
 import com.example.store.dto.request.UserUpdateRequest;
+import com.example.store.dto.response.UserAddressResponse;
 import com.example.store.dto.response.UserResponse;
 import com.example.store.service.UserService;
 import lombok.AccessLevel;
@@ -26,6 +27,14 @@ public class UserController {
     ApiResponse<UserResponse> createUser(@RequestBody UserCreationRequest request){
         return ApiResponse.<UserResponse>builder()
                 .result(userService.createUser(request))
+                .build();
+    }
+
+    @GetMapping("/me/addresses")
+    ApiResponse<UserAddressResponse> getMyAddresses(){
+        return ApiResponse.<UserAddressResponse>builder()
+                .code(1000)
+                .result(userService.getMyAddresses())
                 .build();
     }
 

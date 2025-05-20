@@ -51,7 +51,7 @@ public class AddressService {
     public UserAddressResponse getMyAddresses(){
         User user = getCurrentUser();
 
-        List<Address> addresses = addressRepository.findAllByUser(user);
+        List<Address> addresses = addressRepository.findAllByUser(user.getId());
         List<AddressResponse> addressResponses = addresses.stream()
                 .map(addressMapper::toAddressResponse)
                 .collect(Collectors.toList());

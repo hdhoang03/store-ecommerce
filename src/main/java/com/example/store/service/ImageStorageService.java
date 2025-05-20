@@ -19,7 +19,13 @@ public class ImageStorageService {
             if (!Files.exists(rootLocation)){
                 Files.createDirectories(rootLocation);
             }
-            String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
+            String originalFilename = file.getOriginalFilename();
+            String sanitizedFilename = originalFilename != null
+                    ? originalFilename.replaceAll("[^a-zA-Z0-9\\.\\-_]", "_")
+                    : "image.png";
+
+            String filename = UUID.randomUUID() + "_" + sanitizedFilename;
+
             Path destination = rootLocation.resolve(filename);
             Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
 

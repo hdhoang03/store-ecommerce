@@ -3,12 +3,14 @@ package com.example.store.service;
 import com.example.store.constaint.PredefinedRole;
 import com.example.store.dto.request.*;
 import com.example.store.dto.response.AddressResponse;
+import com.example.store.dto.response.UserAddressResponse;
 import com.example.store.dto.response.UserResponse;
 import com.example.store.entity.Address;
 import com.example.store.entity.Role;
 import com.example.store.entity.User;
 import com.example.store.exception.AppException;
 import com.example.store.exception.ErrorCode;
+import com.example.store.mapper.AddressMapper;
 import com.example.store.mapper.UserMapper;
 import com.example.store.repository.AddressRepository;
 import com.example.store.repository.RoleReponsitory;
@@ -41,6 +43,7 @@ public class UserService {
     RedisService redisService;
     EmailService emailService;
     AddressRepository addressRepository;
+    AddressMapper addressMapper;
 
     public UserResponse createUser(UserCreationRequest request){
         if(userRepository.existsByUsername(request.getUsername())){
@@ -147,13 +150,26 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public UserAddressResponse getMyAddresses(){
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        List<Address> addresses = addressRepository.findAllByUser(user.getId());
+        List<AddressResponse> addressResponses = addresses.stream()
+                .map(addressMapper::toAddressResponse)
+                .collect(Collectors.toList());
+        return UserAddressResponse.builder()
+                .userId(user.getId())
+                .addresses(addressResponses)
+                .build();
+    }
+
     public UserResponse getMyInfo(){
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByUsername(userName).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        user.getAddresses().forEach(address -> {
-            System.out.println("Address: " + address.getPhoneNum());
-        });
+//        user.getAddresses().forEach(address -> {
+//            System.out.println("Address: " + address.getPhoneNum());
+//        });
         return userMapper.toUserResponse(user);
     }
 
